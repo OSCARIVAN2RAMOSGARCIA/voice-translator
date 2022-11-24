@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta http-equiv="X-UA-Compatible" content="ie=edge">
+<title> Translater </title>
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+<link href="https://fonts.googleapis.com/css?family=Rubik:400,600" rel="stylesheet">
+<link href="http://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet" />  
+
+<style>
+   .header{
+    width: 100%;
+  padding: 10px 0;
+  font-size: 16px;
+  border: none;
+  outline: none;
+  text-align: center;
+}
+.video{
+  top: 50%;
+  left: 50%;
+  width: 1370px;
+  width: 700px;
+  padding: 40px;
+}
+
+#lang1,#lang2{
+    background: transparent;
+    color: #03e9f4;
+    padding: 10px 0;
+    border-color: #03e9f4;
+    font-size: 16px;
+    text-decoration: none;
+    width: 280px;
+    text-align: center;
+}
+  html {
+  height: 100%;
+}
+#pantalla{
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 1370px;
+  height: 900px;
+  padding: 40px;
+  transform: translate(-50%, -50%);
+  background: rgba(0,0,0,.5);
+  box-sizing: border-box;
+  box-shadow: 0 15px 25px rgba(0,0,0,.6);
+  border-radius: 10px;
+}
+body {
+  margin:0;
+  padding:0;
+  font-family: sans-serif;
+  background: linear-gradient(#141e30, #243b55);
+}
+#subtitulos{
+  position: absolute;
+  top: 90%;
+  left: 15%;
+  width: 800px;
+  padding: 40px;
+  background-color:black; 
+  color: greenyellow;
+  height:29px;
+  text-align: center;
+  font-family: 'Times New Roman', Times, serif;
+  /* font-size: 35px; */
+}
+#output{
+  width: 600px;
+  height: 30px;
+  background: black;
+  color: greenyellow;
+}
+#barra_Lateral{
+  position: absolute;
+  justify-content: center;
+  top:0%;
+  left: 88%;
+  width: 200px;
+  height: 100%;
+  background-color:rgb(39, 43, 83);
+}
+#translate{
+  top: 25%;
+  width: 9%;
+  height: 6%;
+  font-size: 19px;
+  font-family: Georgia, 'Times New Roman', Times, serif;
+}
+#clear{
+  top: 50%;
+  width: 9%;
+  height: 6%;
+  font-size: 19px;
+  font-family: Georgia, 'Times New Roman', Times, serif;
+}
+#click_to_convert{
+  top: 75%;
+  width: 9%;
+  height: 6%;
+  font-size: 19px;
+  font-family: Georgia, 'Times New Roman', Times, serif;
+}
+#translate,#clear,#click_to_convert{
+  position: absolute;
+  left: 88%;
+}
+#frame{
+  width: 100%;
+  height: 800px;
+}
+#tabla2{
+  position: absolute;
+  /* left: 10%; */
+}
+.output{
+  font-size:60px;
+}
+</style>
+
+</head>
+<body>
+
+<div class="login-box">
+    
+        <div id="pantalla">
+          <div class="header">
+                            <span class="spa"><select id="lang1"></select></span>
+                            <span> <i class="fa fa-exchange" style="color: #03e9f4"></i> </span>
+                            <span><select id="lang2"></select></span>
+        </div>
+        <div id="video">
+        <iframe id="frame" src="http://localhost:3000/voice"></iframe>
+        </div>   
+        <div id="subtitulos"> <textarea id="output" placeholder=""readonly></textarea>
+              <span> </span> </div>
+        </div>
+        
+        <div class="container">
+                <table>
+                    <tr>
+                        <td>
+                            <div class="translater-tex">
+                                <textarea id="user" placeholder="Enter text here..." oninput="actualizar"></textarea>
+                                </div>
+                        </td>
+                    </tr>
+                    
+
+                </table>
+        </div>
+        <div class="tabla2">
+        <button id="clear"><i class="btn fa fa-trash"></i> CLEAR</button>
+        <button id="translate" class="btn">Translate</button>
+        <br>
+        <button id="click_to_convert" class="btn">Voice</button>
+        </div>
+</div>
+<script>
+var speech = false;
+  $(function() {
+  
+  // Bahasa Yang Didukung ):
+  var lang1 = [ "auto","hi","en", "it", "fr", "de","zh-cn", "ko", "es", "id", "pt", "ru", "ja","pl"];
+  var lang1txt = [ "Auto Detect","Hindi","English", "Italy", "French", "Germany","Chinese", "Korean", "Espana", "Bahasa Indonesia", "Portugal", "Russian", "Japanese", "polish"];
+  var lang2 = [ "en","hi","it", "fr", "de","zh-cn", "ko", "es", "id", "pt", "ru", "ja","pl"];
+  var lang2txt = [ "English","Hindi", "Italy", "France", "Germany","Chinese", "Korea", "Espana", "Bahasa Indonesia", "Portugal", "Russian", "Japanese","polish"];
+  
+  // element utama
+  var elm = { "lang1": $("#lang1"), "lang2": $("#lang2"), "user": $("#lang1"), "output": $("#lang2"), "userInput": $("#user"), "langOutput": $("#output") }
+      
+  // Importing Options
+  for (let i in lang1) {  elm.lang1.append(  "<option value='" + lang1[i] + "'>" + lang1txt[i] + "</option>" ); }
+  for (let i in lang2) { elm.lang2.append( "<option value='" +  lang2[i] + "'>" + lang2txt[i] + "</option>"  );  }
+  
+  // API penerjemah
+  function translate() {
+      
+  // memformat text ke URL
+  var format = elm.userInput.val().replace(/ /g , '%20');
+      
+  // Menghubungi JSON
+  $.getJSON( "https://translate.googleapis.com/translate_a/single?client=gtx&sl=" + elm.user.val() + "&tl=" + elm.output.val() + "&dt=t&dt=t&q=" + format,
+  function(JSON) { var convert = JSON.toString(); var temp =  convert.split(","); elm.langOutput.val(temp[0]); }  );  
+}
+      
+  // Makanan Element hah):
+  $("#translate").on("click", function() { translate(); });
+  $("#clear").on("click", function() {
+          // elm.userInput.val(null);
+          elm.langOutput.val(null);
+          user.innerHTML="";
+          speech=false;
+  });
+  setInterval(function() {
+  $("#from").text(
+  $("#lang1").val() );
+  $("#to").text(
+  $("#lang2").val() );}, 10); });
+  
+  click_to_convert.addEventListener('click' ,()=>{
+  console.log("1");
+  speech=true;
+  window.SpeechRecognition = window.webkitSpeechRecognition;
+  const recognition =new SpeechRecognition();
+  recognition.interimResults = true;
+  
+  recognition.addEventListener('result', e=>{
+   const transcript = Array.from(e.results)
+  .map(result =>result[0])
+  .map(result => result. transcript)
+  // elm.userInput.val(transcript);
+  user.innerHTML=transcript;
+  
+  })
+  
+  
+  if(speech == true){
+      recognition.start();
+  }
+  });
+  function actualizar() {
+			let traduccion = document.getElementById("user").value;
+			//Se actualiza en municipio inm
+      
+      console.log();
+
+			// document.getElementById("municipio_inm").value = municipio;
+		}
+     </script>
+</body>
+</html>

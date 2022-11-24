@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>WebCam Translater</title>
+  </head>
+  <body>
+    <div style="width: 100%; height:auto; text-align: center;">
+      <div class="video-wrap">
+          <video id="video" playsinline autoplay></video>
+      </div>
+      
+      <!-- Webcam video snapshot -->
+      <canvas id="canvas" width="100%" height="auto"></canvas>
+      
+  <div class = "voice_to_text">
+    <h1>Voice To Text Converter</h1>
+     <textarea id="convert_text"></textarea>
+     <button id="click_to_convert">Voice to Text</button>
+  </div>
+  </div>
+  
+    <div class="div_centrado fondo_deg">
+      <div id="cont_webcam" class="div_centrado">
+        <div class="borde">
+          <video id="video" playsinline autoplay></video>
+        </div>
+        <canvas id="canvas" width="400px" height="300px"></canvas>
+      </div>
+      <div id="mensaje" class=""></div>
+    </div>
+  </body>
+  <link rel="stylesheet" href="" />
+  <script src=""></script>
+  <script>
+    "use strict";
+    document.getElementById("canvas").style.display = "none";
+    const video = document.getElementById("video");
+    const canvas = document.getElementById("canvas");
+
+    const contrains={
+        audio:false,
+        video:{
+            width:1280,height:720
+        }
+    };
+
+    async function init(){
+        try{
+            const stream= await
+            navigator.mediaDevices.getUserMedia(contrains);
+            handleSuccess(stream);
+        } catch (e){
+            $("#mensaje").html("Debe de seleccionar un dispositivo y permitir el acceso al navegador Presione F5 o Refresh en el navegador.<br clear='all'> <br clear='all'>");
+        }
+
+    }
+
+    handleSuccess((stream)=>{
+    window.stream=stream;
+    video.object= stream;
+    });
+
+    init()
+    var context = canvas.getContext('2d');
+  </script>
+</html>
